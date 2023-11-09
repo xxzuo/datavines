@@ -25,6 +25,7 @@ import io.datavines.common.param.*;
 import io.datavines.common.utils.JSONUtils;
 import io.datavines.connector.api.Connector;
 import io.datavines.common.datasource.jdbc.utils.JdbcDataSourceUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,26 +103,54 @@ public abstract class JdbcConnector implements Connector, IJdbcDataSourceInfo {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             String schema = param.getDataBase();
-
-            tableList = new ArrayList<>();
-            tables = getMetadataTables(metaData, jdbcConnectionInfo.getCatalog(), schema);
-
-            if (null == tables) {
-                return builder.result(tableList).build();
-            }
-
-            while (tables.next()) {
-                String name = tables.getString(TABLE_NAME);
-                if (!StringUtils.isEmpty(name)) {
-                    String type = TABLE;
-                    try {
-                        type = tables.getString(TABLE_TYPE);
-                    } catch (Exception e) {
-                        // ignore
-                    }
-                    tableList.add(new TableInfo(schema, name, type, tables.getString("REMARKS")));
+            List<String> schemaList = new ArrayList<>();
+            ResultSet metadataSchemas = getMetadataSchemas(metaData, schema);
+            if(metadataSchemas != null){
+                while (metadataSchemas.next()){
+                    schemaList.add(metadataSchemas.getString("TABLE_SCHEM"));
                 }
             }
+            tableList = new ArrayList<>();
+            if(CollectionUtils.isNotEmpty(schemaList)){
+                for(String curSchema : schemaList){
+                    tables = getMetadataTables(metaData, schema, curSchema);
+                    if (null == tables) {
+                        return builder.result(tableList).build();
+                    }
+                    while (tables.next()) {
+                        String name = curSchema + "." + tables.getString(TABLE_NAME);
+                        if (!StringUtils.isEmpty(name)) {
+                            String type = TABLE;
+                            try {
+                                type = tables.getString(TABLE_TYPE);
+                            } catch (Exception e) {
+                                // ignore
+                            }
+                            tableList.add(new TableInfo(schema, name, type, tables.getString("REMARKS")));
+                        }
+                    }
+                }
+            }else {
+                tables = getMetadataTables(metaData, jdbcConnectionInfo.getCatalog(), schema);
+                if (null == tables) {
+                    return builder.result(tableList).build();
+                }
+
+                while (tables.next()) {
+                    String name = tables.getString(TABLE_NAME);
+                    if (!StringUtils.isEmpty(name)) {
+                        String type = TABLE;
+                        try {
+                            type = tables.getString(TABLE_TYPE);
+                        } catch (Exception e) {
+                            // ignore
+                        }
+                        tableList.add(new TableInfo(schema, name, type, tables.getString("REMARKS")));
+                    }
+                }
+            }
+
+
 
         } catch (Exception e) {
             logger.error("get table list error: {0}", e);
@@ -245,6 +274,11 @@ public abstract class JdbcConnector implements Connector, IJdbcDataSourceInfo {
     protected ResultSet getMetadataTables(DatabaseMetaData metaData, String catalog, String schema) throws SQLException {
         return metaData.getTables(catalog, schema, null, TABLE_TYPES);
     }
+
+    protected ResultSet getMetadataSchemas(DatabaseMetaData metaData, String catalog) throws SQLException {
+        return null;
+    }
+
 
     protected ResultSet getMetadataColumns(DatabaseMetaData metaData,
                                                     String catalog, String schema,

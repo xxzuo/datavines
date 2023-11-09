@@ -356,6 +356,10 @@ public class CatalogEntityInstanceServiceImpl
             database = values[0];
             table = values[1];
             detail.setUpdateTime(catalogMetaDataFetchTaskService.getRefreshTime(instance.getDatasourceId(), database,table));
+        } else if (values.length == 3) {
+            database = values[0];
+            table = values[1] + "." + values[2];
+            detail.setUpdateTime(catalogMetaDataFetchTaskService.getRefreshTime(instance.getDatasourceId(), database,table));
         } else {
             detail.setUpdateTime(instance.getUpdateTime());
         }
@@ -388,11 +392,15 @@ public class CatalogEntityInstanceServiceImpl
         String table = "";
         String fqn = instance.getFullyQualifiedName();
         String[] values = fqn.split("\\.");
-        if (values.length == 3) {
+        if (values.length == 2) {
             database = values[0];
             table = values[1];
             detail.setUpdateTime(catalogMetaDataFetchTaskService.getRefreshTime(instance.getDatasourceId(), database,table));
-        } else {
+        } else if (values.length == 3) {
+            database = values[0];
+            table = values[1] + "." + values[2];
+            detail.setUpdateTime(catalogMetaDataFetchTaskService.getRefreshTime(instance.getDatasourceId(), database,table));
+        }else {
             detail.setUpdateTime(instance.getUpdateTime());
         }
 
@@ -761,6 +769,9 @@ public class CatalogEntityInstanceServiceImpl
                 if (values.length == 2) {
                     parameter.setDatabase(values[0]);
                     parameter.setTable(values[1]);
+                } else if (values.length == 3) {
+                    parameter.setDatabase(values[0]);
+                    parameter.setTable(values[1] + "." + values[2]);
                 }
                 break;
             case "column":
@@ -768,6 +779,10 @@ public class CatalogEntityInstanceServiceImpl
                     parameter.setDatabase(values[0]);
                     parameter.setTable(values[1]);
                     parameter.setColumn(values[2]);
+                }else if(values.length == 4){
+                    parameter.setDatabase(values[0]);
+                    parameter.setTable(values[1] + "." + values[2]);
+                    parameter.setColumn(values[3]);
                 }
                 break;
             default:
@@ -863,6 +878,17 @@ public class CatalogEntityInstanceServiceImpl
                 baseJobParameter.setMetricParameter(metricParameter);
                 baseJobParameter.setExpectedType("fix_value");
                 jobParameters.add(baseJobParameter);
+            } else if(values.length == 3){
+                schemaName = values[0];
+                tableName = values[1] + "." + values[2];
+                metricParameter.put("database", schemaName);
+                metricParameter.put("table", tableName);
+                metricParameter.put("entity_uuid", entityInstance.getUuid());
+                metricParameter.put("actual_value_type", "count");
+                metricParameter.put("filter", filter);
+                baseJobParameter.setMetricParameter(metricParameter);
+                baseJobParameter.setExpectedType("fix_value");
+                jobParameters.add(baseJobParameter);
             } else {
                 throw new DataVinesServerException(Status.CATALOG_PROFILE_INSTANCE_FQN_ERROR, fqn);
             }
@@ -908,15 +934,28 @@ public class CatalogEntityInstanceServiceImpl
                 if (values.length < 3) {
                     continue;
                 }
-                metricParameter1.put("database", values[0]);
-                metricParameter1.put("table", values[1]);
-                metricParameter1.put("column", values[2]);
-                metricParameter1.put("entity_uuid", catalogEntityInstance.getUuid());
-                metricParameter1.put("actual_value_type", "count");
-                metricParameter1.put("filter", filter);
-                baseJobParameter.setMetricParameter(metricParameter1);
-                baseJobParameter.setExpectedType("fix_value");
-                jobParameters.add(baseJobParameter);
+                if(values.length == 3){
+                    metricParameter1.put("database", values[0]);
+                    metricParameter1.put("table", values[1]);
+                    metricParameter1.put("column", values[2]);
+                    metricParameter1.put("entity_uuid", catalogEntityInstance.getUuid());
+                    metricParameter1.put("actual_value_type", "count");
+                    metricParameter1.put("filter", filter);
+                    baseJobParameter.setMetricParameter(metricParameter1);
+                    baseJobParameter.setExpectedType("fix_value");
+                    jobParameters.add(baseJobParameter);
+                } else if(values.length == 4) {
+                    metricParameter1.put("database", values[0]);
+                    metricParameter1.put("table", values[1] + "." + values[2]);
+                    metricParameter1.put("column", values[3]);
+                    metricParameter1.put("entity_uuid", catalogEntityInstance.getUuid());
+                    metricParameter1.put("actual_value_type", "count");
+                    metricParameter1.put("filter", filter);
+                    baseJobParameter.setMetricParameter(metricParameter1);
+                    baseJobParameter.setExpectedType("fix_value");
+                    jobParameters.add(baseJobParameter);
+                }
+
             }
         }
 

@@ -440,7 +440,12 @@ public class CatalogMetaDataFetchExecutorImpl implements CatalogMetaDataFetchExe
 
         tableList.forEach(table -> {
             String[] values = table.getFullyQualifiedName().split("\\.");
-            executeFetchTable(values[0], values[1]);
+            if(values.length == 3){
+                executeFetchTable(values[0], values[1] + "." + values[2]);
+            }else {
+                executeFetchTable(values[0], values[1]);
+            }
+
         });
     }
 

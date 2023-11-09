@@ -18,7 +18,6 @@ package io.datavines.connector.plugin;
 
 import io.datavines.common.datasource.jdbc.BaseJdbcDataSourceInfo;
 import io.datavines.common.datasource.jdbc.JdbcConnectionInfo;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -33,17 +32,27 @@ public class PostgreSqlConnector extends JdbcConnector {
 
     @Override
     public ResultSet getMetadataColumns(DatabaseMetaData metaData, String catalog, String schema, String tableName, String columnName) throws SQLException {
-        return metaData.getColumns(schema, null, tableName, columnName);
+        return metaData.getColumns(schema, null, tableName.split("\\.")[1], columnName);
     }
 
     @Override
     public ResultSet getMetadataTables(DatabaseMetaData metaData, String catalog, String schema) throws SQLException {
-        return metaData.getTables(schema, null, null, TABLE_TYPES);
+        return metaData.getTables(catalog, schema, null, TABLE_TYPES);
     }
 
     @Override
     public ResultSet getMetadataDatabases(Connection connection) throws SQLException {
         DatabaseMetaData metaData = connection.getMetaData();
         return metaData.getCatalogs();
+    }
+
+    @Override
+    public ResultSet getMetadataSchemas(DatabaseMetaData metaData, String catalog) throws SQLException {
+        return metaData.getSchemas(catalog, null);
+    }
+
+    @Override
+    protected ResultSet getPrimaryKeys(DatabaseMetaData metaData,String catalog, String schema, String tableName) throws SQLException {
+        return metaData.getPrimaryKeys(schema, null, tableName.split("\\.")[1]);
     }
 }
