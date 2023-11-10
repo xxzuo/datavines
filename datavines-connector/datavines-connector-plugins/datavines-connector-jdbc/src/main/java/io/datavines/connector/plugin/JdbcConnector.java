@@ -103,13 +103,8 @@ public abstract class JdbcConnector implements Connector, IJdbcDataSourceInfo {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             String schema = param.getDataBase();
-            List<String> schemaList = new ArrayList<>();
-            ResultSet metadataSchemas = getMetadataSchemas(metaData, schema);
-            if(metadataSchemas != null){
-                while (metadataSchemas.next()){
-                    schemaList.add(metadataSchemas.getString("TABLE_SCHEM"));
-                }
-            }
+            List<String> schemaList = getSchemaList(metaData, schema);
+
             tableList = new ArrayList<>();
             if(CollectionUtils.isNotEmpty(schemaList)){
                 for(String curSchema : schemaList){
@@ -277,6 +272,18 @@ public abstract class JdbcConnector implements Connector, IJdbcDataSourceInfo {
 
     protected ResultSet getMetadataSchemas(DatabaseMetaData metaData, String catalog) throws SQLException {
         return null;
+    }
+
+    protected List<String> getSchemaList(DatabaseMetaData metaData, String catalog) throws SQLException {
+        List<String> schemaList = new ArrayList<>();
+        ResultSet metadataSchemas = getMetadataSchemas(metaData, catalog);
+        if(metadataSchemas != null){
+            while (metadataSchemas.next()){
+                schemaList.add(metadataSchemas.getString("TABLE_SCHEM"));
+            }
+        }
+
+        return schemaList;
     }
 
 
