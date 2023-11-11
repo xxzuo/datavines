@@ -25,7 +25,7 @@ public class SqlserverConnectorParameterConverter extends JdbcConnectorParameter
 
     @Override
     protected String getUrl(Map<String, Object> parameter) {
-        String url = String.format("jdbc:sqlserver://%s:%s;databaseName=%s;schema=%s",
+        String url = String.format("jdbc:sqlserver://%s:%s;databaseName=%s;CurrentSchema=%s",
                 parameter.get(HOST),
                 parameter.get(PORT),
                 parameter.get(CATALOG),

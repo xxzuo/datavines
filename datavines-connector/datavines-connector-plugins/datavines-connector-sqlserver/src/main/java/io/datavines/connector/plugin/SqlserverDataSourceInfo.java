@@ -58,7 +58,7 @@ public class SqlserverDataSourceInfo extends BaseJdbcDataSourceInfo {
             jdbcUrl.append(";databaseName=");
         }
         jdbcUrl.append(getCatalog());
-        jdbcUrl.append(";schema=");
+        jdbcUrl.append(";CurrentSchema=");
         jdbcUrl.append(getDatabase());
 
         appendProperties(jdbcUrl);
