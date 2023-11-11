@@ -120,6 +120,12 @@ public class ConfigConstants {
 
     public static final String STRING_TYPE = "string_type";
 
+    public static final String LEN_FUNCTION = "len_function";
+
+    public static final String IF_FUNCTION = "if_function";
+
+    public static final String COLUMN_HISTOGRAM_ORDER = "column_histogram_order";
+
     public static final String LIMIT_KEY = "limit_key";
 
     public static final String INVALIDATE_ITEMS_TABLE = "invalidate_items_table";

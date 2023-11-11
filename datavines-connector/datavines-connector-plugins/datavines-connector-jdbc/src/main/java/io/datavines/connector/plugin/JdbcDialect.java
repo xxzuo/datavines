@@ -35,6 +35,9 @@ public abstract class JdbcDialect implements Dialect {
         dialectKeyMap.put(REGEX_KEY, "${column} regexp '${regexp}'");
         dialectKeyMap.put(NOT_REGEX_KEY, "${column} not regexp '${regexp}'");
         dialectKeyMap.put(STRING_TYPE, "varchar");
+        dialectKeyMap.put(LEN_FUNCTION, "length");
+        dialectKeyMap.put(IF_FUNCTION, "if");
+        dialectKeyMap.put(COLUMN_HISTOGRAM_ORDER, " limit 50");
         return dialectKeyMap;
     }
 

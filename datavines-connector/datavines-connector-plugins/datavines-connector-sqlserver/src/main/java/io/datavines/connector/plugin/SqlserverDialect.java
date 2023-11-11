@@ -18,7 +18,7 @@ package io.datavines.connector.plugin;
 
 import java.util.Map;
 
-import static io.datavines.common.ConfigConstants.STRING_TYPE;
+import static io.datavines.common.ConfigConstants.*;
 
 public class SqlserverDialect extends JdbcDialect {
 
@@ -26,6 +26,9 @@ public class SqlserverDialect extends JdbcDialect {
     public Map<String, String> getDialectKeyMap() {
         super.getDialectKeyMap();
         dialectKeyMap.put(STRING_TYPE, "char");
+        dialectKeyMap.put(LEN_FUNCTION, "len");
+        dialectKeyMap.put(IF_FUNCTION, "iif");
+        dialectKeyMap.put(COLUMN_HISTOGRAM_ORDER, " OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY");
         return dialectKeyMap;
     }
 
