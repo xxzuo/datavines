@@ -88,16 +88,20 @@ public class JdbcUtils {
         List<StructField> fields = new ArrayList<>(columnCount);
         for (int i=0; i<columnCount; i++) {
             String columnName = metaData.getColumnName(i+1);
+            if(columnName.contains(".")){
+                String[] colSplit = columnName.split("\\.");
+                columnName = colSplit[colSplit.length - 1];
+            }
             int type = metaData.getColumnType(i+1);
             String typeName = metaData.getColumnTypeName(i+1);
             int fieldSize = metaData.getPrecision(i + 1);
             int fieldScale = metaData.getScale(i + 1);
             boolean isSigned = false;
-            try {
-                isSigned = metaData.isSigned(i + 1);
-            } catch (SQLException e) {
-                log.error("isSigned method : ", e);
-            }
+//            try {
+//                isSigned = metaData.isSigned(i + 1);
+//            } catch (SQLException e) {
+//                log.error("isSigned method : ", e);
+//            }
             boolean isNullable = metaData.isNullable(i + 1) != ResultSetMetaData.columnNoNulls;
 
             StructField field = new StructField();

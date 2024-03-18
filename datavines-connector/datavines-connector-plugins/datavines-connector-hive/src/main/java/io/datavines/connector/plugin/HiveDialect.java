@@ -36,6 +36,6 @@ public class HiveDialect extends JdbcDialect {
 
     @Override
     public boolean invalidateItemCanOutput() {
-        return false;
+        return true;
     }
 }

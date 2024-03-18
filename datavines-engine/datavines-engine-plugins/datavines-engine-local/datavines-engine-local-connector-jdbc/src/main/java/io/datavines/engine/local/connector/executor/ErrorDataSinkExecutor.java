@@ -332,9 +332,11 @@ public class ErrorDataSinkExecutor extends BaseDataSinkExecutor {
         }
 
         log.info("create error data table : " + createTableSql);
-        Statement statement = getConnectionHolder().getConnection().createStatement();
-        statement.execute(createTableSql);
-        statement.close();
+        try (Statement statement = getConnectionHolder().getConnection().createStatement()){
+            statement.execute(createTableSql);
+        } catch (Exception e){
+            log.error("create error table error , sql is {}", createTableSql, e);
+        }
     }
 
     private List<StructField> getTableSchema(Statement statement, Config config, TypeConverter typeConverter) {
