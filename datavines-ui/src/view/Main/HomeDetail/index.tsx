@@ -97,7 +97,7 @@ const DetailMain = () => {
                 <ArrowLeftOutlined />
             </div>
             {renderDataSourceSelect()}
-            {!location.pathname.includes('jobs') && !location.pathname.includes('dashboard') && !location.pathname.includes('jobExecutionLogs') ? (
+            {!location.pathname.includes('jobs') && !location.pathname.includes('dashboard') && !location.pathname.includes('jobExecutionLogs') && !location.pathname.includes('editor') ? (
                 <Button style={{ marginLeft: '10px' }} onClick={changeType}>
                     { editType ? intl.formatMessage({ id: 'jobs_directory' }) : intl.formatMessage({ id: 'jobs_editor' })}
                 </Button>
