@@ -21,6 +21,7 @@ import io.datavines.common.enums.ExecutionStatus;
 import io.datavines.common.enums.OperatorType;
 import io.datavines.common.utils.JSONUtils;
 import io.datavines.common.utils.ParameterUtils;
+import io.datavines.common.utils.StringUtils;
 import io.datavines.core.utils.LanguageUtils;
 import io.datavines.metric.api.*;
 import io.datavines.notification.api.entity.SlaConfigMessage;
@@ -33,6 +34,7 @@ import io.datavines.server.repository.entity.DataSource;
 import io.datavines.server.repository.entity.Job;
 import io.datavines.server.repository.entity.JobExecution;
 import io.datavines.server.repository.entity.JobExecutionResult;
+import io.datavines.server.repository.entity.Server;
 import io.datavines.server.repository.service.*;
 import io.datavines.server.repository.service.impl.JobExternalService;
 import io.datavines.spi.PluginLoader;
@@ -59,7 +61,10 @@ public class JobResultValidator {
 
     @Autowired
     private IssueService issueService;
-    
+
+    @Autowired
+    private ServerService serverService;
+
     /**
      * When the task type is data quality, it will get the statistics value、comparison value、
      * threshold、check type、operator and failure strategy，use the formula that
@@ -126,6 +131,9 @@ public class JobResultValidator {
         String dataSourceName = dataSource.getName();
         String dataSourceType = dataSource.getType();
         List<JobExecutionResult> errorJobExecutionResultList = jobExternalService.listErrorJobExecutionResultByJobExecutionId(jobExecution.getId());
+
+        Server server = serverService.getOne();
+
         boolean isEn = !LanguageUtils.isZhContext();
         if (CollectionUtils.isNotEmpty(errorJobExecutionResultList)) {
             for (JobExecutionResult errorJobExecutionResult : errorJobExecutionResultList) {
@@ -135,6 +143,10 @@ public class JobResultValidator {
                 messages.add((isEn ? "Job Name : ": "作业名称: ") + jobName);
                 messages.add(String.format((isEn ? "Datasource : %s [%s] : ": "数据源 : %s [%s]: ") ,dataSourceType.toUpperCase(), dataSourceName));
                 String title = buildAlertSubject(metricExecutionResult, isEn);
+                String jobViewLink = buildJobViewLink(server, dataSourceId, jobId);
+                if(StringUtils.isNotEmpty(jobViewLink)){
+                    messages.add((isEn ? "Job View : ": "执行记录 : ") + jobViewLink);
+                }
                 String content = buildAlertMessage(messages, metricExecutionResult, jobExecution.getEngineType(), isEn);
                 message.setSubject(title);
                 message.setMessage(content);
@@ -146,6 +158,13 @@ public class JobResultValidator {
                 notificationClient.notify(message, config);
             }
         }
+    }
+
+    private String buildJobViewLink(Server server, Long datasourceId, Long jobId){
+        if(server == null){
+            return "";
+        }
+        return String.format("http://%s:%d/#/main/detail/%d/jobs/instance?jobId=%d", server.getHost(), server.getPort(), datasourceId, jobId);
     }
 
     private String buildAlertMessage(List<String> messages, MetricExecutionResult metricExecutionResult, String engineType, boolean isEn) {
