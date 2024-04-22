@@ -191,6 +191,12 @@
             <artifactId>datavines-metric-multi-table-value-comparison</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.datavines</groupId>
+            <artifactId>datavines-metric-multi-column-duplicate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

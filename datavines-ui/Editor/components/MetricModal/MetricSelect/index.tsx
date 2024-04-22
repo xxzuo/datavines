@@ -137,6 +137,24 @@ const Index = ({
         const values = form.getFieldsValue();
         getCloumn(values.database, values.table);
     };
+
+
+    const renderColumnList = () => {
+        const {
+            column,
+        } = detail?.parameterItem?.metricParameter || {} as TMetricParameter;
+        return (
+            <Form.Item
+                {...layoutItem}
+                label={intl.formatMessage({ id: 'dv_metric_column' })}
+                name="columnList"
+                rules={[{ required: true, message: intl.formatMessage({ id: 'editor_dv_metric_select_column' }) }]}
+            >
+                <CustomSelect defaultValue={column} disabled={!isJobsPage && (!!entityUuid || !dsiabledEdit?.isTable) && !!detail?.parameterItem?.metricParameter?.column} allowClear source={columns} sourceValueMap="name" />
+            </Form.Item>
+        );
+    };
+
     const renderColumn = () => {
         const {
             column,
@@ -204,6 +222,16 @@ const Index = ({
                                 />
                             </Form.Item>
                         </IF>
+                        <Form.Item noStyle dependencies={['table', 'metricType']}>
+                            {() => {
+                                const value = form.getFieldValue('table');
+                                if (!value || !configsMap.columnList) {
+                                    return null;
+                                }
+                                return renderColumnList();
+                            }}
+                        </Form.Item>
+
                         <Form.Item noStyle dependencies={['table', 'metricType']}>
                             {() => {
                                 const value = form.getFieldValue('table');

@@ -224,7 +224,7 @@ public abstract class JdbcConnector implements Connector, IJdbcDataSourceInfo {
                 primaryKeys.add(rs.getString("COLUMN_NAME"));
             }
         } catch (Exception e) {
-            logger.error("get primary key error, param is {} :", schema + "." + tableName, e);
+            logger.error("get primary key error, param is catalog: {}, schema: {}, tableName: {} ", catalog, schema, tableName, e);
         } finally {
             JdbcDataSourceUtils.closeResult(rs);
         }
@@ -246,7 +246,7 @@ public abstract class JdbcConnector implements Connector, IJdbcDataSourceInfo {
                 columnList.add(new ColumnInfo(name, rawType, comment,false));
             }
         } catch (Exception e) {
-            logger.error("get column error, param is {} :", schema + "." + tableName, e);
+            logger.error("get column error, param is catalog: {}, schema: {}, tableName: {} ", catalog, schema, tableName, e);
         } finally {
             JdbcDataSourceUtils.closeResult(rs);
         }
