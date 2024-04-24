@@ -310,4 +310,5 @@ export default {
     quality_dashboard_failure_execution: 'Fail Check',
 
     next_ten_cron_run_times: 'Next ten cron run times',
+    view_future_execute_plan: 'view future execute plan',
 };

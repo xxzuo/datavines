@@ -9,7 +9,6 @@ import {
 } from 'antd';
 import useRequiredRule from '@Editor/hooks/useRequiredRule';
 import dayjs from 'dayjs';
-import { EyeOutlined } from '@ant-design/icons';
 import { CustomSelect, useMount, useLoading } from '@/common';
 import PageContainer from '../../useAddEditJobsModal/PageContainer';
 import { pickProps } from '@/utils';
@@ -335,11 +334,11 @@ const Schedule: React.FC<ScheduleProps> = ({ formRef, detail }) => {
                                             {detail?.cronExpression}
                                             <Button
                                                 type="primary"
-                                                shape="circle"
                                                 size="small"
-                                                icon={<EyeOutlined />}
                                                 onClick={() => calculateFutureCronRunTimes(detail?.cronExpression)}
-                                            />
+                                            >
+                                                {intl.formatMessage({ id: 'view_future_execute_plan' })}
+                                            </Button>
                                         </Space>
                                     </div>
                                 </Form.Item>
@@ -370,11 +369,11 @@ const Schedule: React.FC<ScheduleProps> = ({ formRef, detail }) => {
                                     <Col>
                                         <Button
                                             type="primary"
-                                            shape="circle"
                                             size="small"
-                                            icon={<EyeOutlined />}
                                             onClick={() => calculateFutureCronRunTimes(customCronExpression)}
-                                        />
+                                        >
+                                            {intl.formatMessage({ id: 'view_future_execute_plan' })}
+                                        </Button>
                                     </Col>
                                 </Row>
                             );
