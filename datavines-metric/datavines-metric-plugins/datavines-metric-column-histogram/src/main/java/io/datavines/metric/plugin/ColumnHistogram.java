@@ -89,10 +89,11 @@ public class ColumnHistogram extends BaseSingleTableColumn {
         actualValueSql.append(" group by ${column} order by count desc ");
         switch (srcConnectorType){
             case "oracle":
+                // oracle the rownum filter should be placed at the outermost layer of the query, otherwise it cannot be filtered
                 actualValueSql.append(" ) T where ${limit_top_50_key} ");
                 break;
             default:
-                actualValueSql.append(" group by ${column} order by count desc ${limit_top_50_key}) T");
+                actualValueSql.append(" ${limit_top_50_key}) T");
                 break;
         }
 
