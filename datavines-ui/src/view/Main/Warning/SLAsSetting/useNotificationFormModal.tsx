@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {
-    Input, ModalProps, Form, FormInstance, Radio, message,
+    Input, ModalProps, Form, FormInstance, Radio, message, Button,
 } from 'antd';
 import { useIntl } from 'react-intl';
 import querystring from 'querystring';
@@ -144,6 +144,27 @@ export const useNotificationFormModal = (options: ModalProps) => {
     editRef.current = editInfo;
     const [qs] = useState(querystring.parse(window.location.href.split('?')[1] || ''));
     const { workspaceId } = useSelector((r) => r.workSpaceReducer);
+    const testSend = usePersistFn(async () => {
+        form.validateFields().then(async (values) => {
+            try {
+                setLoading(true);
+                const { senderId, ...rest } = values;
+                const params = {
+                    senderId,
+                    slaId: qs.slaId,
+                    config: JSON.stringify(rest),
+                };
+                await $http.post('/sla/send/test', params);
+                message.success(intl.formatMessage({ id: 'common_success' }));
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false);
+            }
+        }).catch((err) => {
+            console.log(err);
+        });
+    });
     const onOk = usePersistFn(async () => {
         form.validateFields().then(async (values) => {
             try {
@@ -179,6 +200,18 @@ export const useNotificationFormModal = (options: ModalProps) => {
         onOk,
         width: 600,
         ...(options || {}),
+        footer: (
+            <div style={{ textAlign: 'center' }}>
+                <Button style={{ width: 120 }} onClick={testSend}>{intl.formatMessage({ id: 'test_send' })}</Button>
+                <Button
+                    style={{ width: 120 }}
+                    type="primary"
+                    onClick={onOk}
+                >
+                    {intl.formatMessage({ id: 'confirm_text' })}
+                </Button>
+            </div>
+        ),
     });
     return {
         Render: useImmutable(() => (<Render><Inner form={form} /></Render>)),
