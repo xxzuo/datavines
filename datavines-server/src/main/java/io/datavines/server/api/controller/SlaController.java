@@ -104,8 +104,8 @@ public class SlaController {
     @PostMapping(value = "/sender/test")
     public Object testSend(@Valid @RequestBody SlaNotificationCreate slaNotificationSendTest) {
         SlaNotificationMessage message = new SlaNotificationMessage();
-        message.setMessage("[\"test\"]");
-        message.setSubject("just test sla sender");
+        message.setMessage("[\"test sla sender\"]");
+        message.setSubject("Test sender");
         Map<SlaSenderMessage, Set<SlaConfigMessage>> configuration = slaNotificationService.getSlasNotificationConfigurationBySlasIdAndSenderId(slaNotificationSendTest.getSlaId(), slaNotificationSendTest.getSenderId(), slaNotificationSendTest.getConfig());
         return client.notify(message, configuration);
     }

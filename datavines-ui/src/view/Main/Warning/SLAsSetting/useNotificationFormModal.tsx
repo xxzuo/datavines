@@ -53,6 +53,9 @@ const Inner = ({ form }: InnerProps) => {
             };
             const list = (await $http.get('/sla/sender/list', params)) || [];
             setSenderList(list);
+            form?.setFieldsValue({
+                senderId: undefined,
+            });
             if (res) {
                 const $res = JSON.parse(res) as NoticeDynamicItem[];
                 setDynamicMeta($res.map((item) => {
@@ -144,7 +147,7 @@ export const useNotificationFormModal = (options: ModalProps) => {
     editRef.current = editInfo;
     const [qs] = useState(querystring.parse(window.location.href.split('?')[1] || ''));
     const { workspaceId } = useSelector((r) => r.workSpaceReducer);
-    const testSend = usePersistFn(async () => {
+    const testSender = usePersistFn(async () => {
         form.validateFields().then(async (values) => {
             try {
                 setLoading(true);
@@ -154,7 +157,7 @@ export const useNotificationFormModal = (options: ModalProps) => {
                     slaId: qs.slaId,
                     config: JSON.stringify(rest),
                 };
-                await $http.post('/sla/send/test', params);
+                await $http.post('/sla/sender/test', params);
                 message.success(intl.formatMessage({ id: 'common_success' }));
             } catch (error) {
                 console.log(error);
@@ -202,7 +205,7 @@ export const useNotificationFormModal = (options: ModalProps) => {
         ...(options || {}),
         footer: (
             <div style={{ textAlign: 'center' }}>
-                <Button style={{ width: 120 }} onClick={testSend}>{intl.formatMessage({ id: 'test_send' })}</Button>
+                <Button style={{ width: 120 }} onClick={testSender}>{intl.formatMessage({ id: 'test_send' })}</Button>
                 <Button
                     style={{ width: 120 }}
                     type="primary"
