@@ -20,6 +20,7 @@ import io.datavines.connector.api.Connector;
 import io.datavines.connector.api.ConnectorParameterConverter;
 import io.datavines.connector.api.Dialect;
 import io.datavines.connector.api.Executor;
+import io.datavines.connector.api.ConfigBuilder;
 
 public class ClickHouseConnectorFactory extends AbstractJdbcConnectorFactory {
 
@@ -41,5 +42,10 @@ public class ClickHouseConnectorFactory extends AbstractJdbcConnectorFactory {
     @Override
     public Executor getExecutor() {
         return new ClickHouseExecutor(getDataSourceClient());
+    }
+
+    @Override
+    public ConfigBuilder getConfigBuilder() {
+        return new ClickHouseConfigBuilder();
     }
 }
