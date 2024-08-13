@@ -12,7 +12,7 @@ export default {
     common_type: '类型',
     common_dataSource: '数据源',
     common_settings: '设置',
-    common_notice: '通知',
+    common_notice: '通知通道',
     common_desc: '描述',
     common_required_tip: '此项必填',
     common_Ok: '确定',
@@ -319,4 +319,5 @@ export default {
 
     next_ten_cron_run_times: '未来十次执行时间',
     view_future_execute_plan: '查看未来执行计划',
+    test_send: '测试发送',
 };
