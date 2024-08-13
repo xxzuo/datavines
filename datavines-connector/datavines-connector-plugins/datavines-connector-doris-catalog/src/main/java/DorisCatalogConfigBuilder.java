@@ -20,7 +20,6 @@ import io.datavines.common.param.form.Validate;
 import io.datavines.common.param.form.type.InputParam;
 import io.datavines.connector.plugin.JdbcConfigBuilder;
 import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.List;
 
