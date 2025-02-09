@@ -44,4 +44,14 @@ public class ClickHouseConnectorFactory extends AbstractJdbcConnectorFactory {
     public MetricScript getMetricScript() {
         return new ClickHouseMetricScript();
     }
+
+    @Override
+    public ConfigBuilder getConfigBuilder() {
+        return new ClickHouseConfigBuilder();
+    }
+
+    @Override
+    public TypeConverter getTypeConverter() {
+        return new ClickHouseTypeConverter();
+    }
 }

@@ -45,8 +45,6 @@ public abstract class JdbcConnector implements Connector, IJdbcDataSourceInfo {
 
     protected static final String TABLE = "TABLE";
 
-    protected static final String DATABASE = "DATABASE";
-
     protected static final String VIEW = "VIEW";
 
     protected static final String[] TABLE_TYPES = new String[]{TABLE, VIEW};
