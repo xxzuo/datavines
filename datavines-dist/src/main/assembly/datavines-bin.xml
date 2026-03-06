@@ -75,6 +75,14 @@
             </includes>
             <outputDirectory>./conf</outputDirectory>
         </fileSet>
+
+        <fileSet>
+            <directory>${basedir}/../docs/wiki</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>./docs/wiki</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
