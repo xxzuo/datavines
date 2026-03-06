@@ -80,6 +80,10 @@ management:
 
 logging:
   config: classpath:server-logback.xml
+
+datavines:
+  wiki:
+    content-path: docs/wiki
 ---
 spring:
   config:

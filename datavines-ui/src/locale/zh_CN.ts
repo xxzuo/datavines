@@ -48,6 +48,7 @@ export default {
     '/main/label': '标签管理',
     '/main/config': '参数管理',
     '/main/tokenManager': '令牌管理',
+    '/main/docs': '使用文档',
 
     confirm_text: '确认',
     test_link: '测试链接',
@@ -334,6 +335,10 @@ export default {
     token_expire_time: '过期时间',
     token_token: '令牌',
     create_token: '创建令牌',
+
+    docs_title: '使用文档',
+    docs_select_tip: '请选择文档查看',
+    docs_no_content: '暂无文档内容',
 
     quality_dashboard_profile: '质量概览',
     quality_dashboard_trend: '质量趋势',

@@ -1,6 +1,6 @@
 import React, { lazy } from 'react';
 import {
-    DatabaseOutlined, WarningOutlined, UsergroupAddOutlined, CloseCircleOutlined, TagOutlined,FormOutlined,SafetyCertificateOutlined
+    DatabaseOutlined, WarningOutlined, UsergroupAddOutlined, CloseCircleOutlined, TagOutlined,FormOutlined,SafetyCertificateOutlined, ReadOutlined
 } from '@ant-design/icons';
 import { TRouter } from './type';
 
@@ -55,6 +55,12 @@ const router: TRouter = {
         key: '/main/tokenManager',
         icon: <SafetyCertificateOutlined />,
         component: lazy(() => import(/* webpackChunkName: 'view-label' */ '@/view/Main/TokenManager')),
+    },
+    'dv-docs': {
+        path: '/main/docs',
+        key: '/main/docs',
+        icon: <ReadOutlined />,
+        component: lazy(() => import(/* webpackChunkName: 'view-docs' */ '@/view/Main/Docs')),
     },
 };
 

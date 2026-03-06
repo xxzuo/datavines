@@ -48,6 +48,7 @@ export default {
     '/main/label': 'Label',
     '/main/config': 'Config',
     '/main/tokenManager': 'Token',
+    '/main/docs': 'Docs',
 
     confirm_text: 'OK',
     test_link: 'Test Connect',
@@ -332,6 +333,10 @@ export default {
     token_expire_time: 'Expire Time',
     token_token: 'Token',
     create_token: 'Create Token',
+
+    docs_title: 'Documentation',
+    docs_select_tip: 'Select a document to view',
+    docs_no_content: 'No documentation available',
 
     quality_dashboard_profile: 'Quality Profile',
     quality_dashboard_trend: 'Quality Trend',

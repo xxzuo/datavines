@@ -103,6 +103,7 @@ module.exports = {
             component: resolve('src/component'),
             assets: resolve('src/assets'),
             '@Editor': resolve('Editor'),
+            'cytoscape/dist/cytoscape.umd.js': resolve('node_modules/cytoscape/dist/cytoscape.umd.js'),
         },
     },
     optimization: {
