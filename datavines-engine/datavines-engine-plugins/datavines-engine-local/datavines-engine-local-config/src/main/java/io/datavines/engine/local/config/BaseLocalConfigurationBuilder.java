@@ -27,6 +27,7 @@ import io.datavines.common.utils.StringUtils;
 import io.datavines.connector.api.ConnectorFactory;
 import io.datavines.connector.api.utils.SqlUtils;
 import io.datavines.engine.config.BaseJobConfigurationBuilder;
+import io.datavines.engine.config.CustomSqlTable;
 import io.datavines.engine.config.MetricParserUtils;
 import io.datavines.metric.api.ExpectedValue;
 import io.datavines.metric.api.SqlMetric;
@@ -78,21 +79,18 @@ public abstract class BaseLocalConfigurationBuilder extends BaseJobConfiguration
                             throw new DataVinesException("custom sql must have table");
                         }
                         String tableFromSql = tables.get(0).replaceAll(connectorFactory.getDialect().getQuoteIdentifier(), "");
-                        String[] tableArray = tableFromSql.split("\\.");
-                        if (tableArray.length == 1) {
-                            metricInputParameter.put(TABLE, tableArray[0]);
-                        } else {
-                            String connectorSchema = connectorParameter.getParameters().get(SCHEMA) != null ?
-                                (String)connectorParameter.getParameters().get(SCHEMA) : null;
-                            if (connectorSchema != null && connectorSchema.equals(tableArray[0])) {
-                                // When the table name from SQL already includes the schema prefix
-                                // (e.g., "schema.table"), and it matches the configured schema,
-                                // treat it as schema.table, not database.table
-                                metricInputParameter.put(TABLE, tableArray[1]);
-                            } else {
-                                metricInputParameter.put(DATABASE, tableArray[0]);
-                                metricInputParameter.put(TABLE, tableArray[1]);
-                            }
+                        String connectorSchema = connectorParameter.getParameters().get(SCHEMA) != null ?
+                                (String) connectorParameter.getParameters().get(SCHEMA) : null;
+                        CustomSqlTable customSqlTable = MetricParserUtils.parseCustomSqlTable(tableFromSql, connectorSchema,
+                                connectorFactory.getDialect().isTwoPartNameSchemaQualified());
+                        metricInputParameter.put(TABLE, customSqlTable.getTable());
+                        if (customSqlTable.getDatabase() != null) {
+                            metricInputParameter.put(DATABASE, customSqlTable.getDatabase());
+                        }
+                        if (customSqlTable.getSchema() != null) {
+                            metricInputParameter.put(SCHEMA, customSqlTable.getSchema());
+                        } else if (connectorSchema != null) {
+                            metricInputParameter.put(SCHEMA, connectorSchema);
                         }
 
                         Map<String, Object> connectorParameterMap = new HashMap<>(connectorParameter.getParameters());
@@ -102,9 +100,6 @@ public abstract class BaseLocalConfigurationBuilder extends BaseJobConfiguration
                         metricInputParameter.put(DATABASE_NAME, metricInputParameter.get(DATABASE));
                         metricInputParameter.put(TABLE_NAME, metricInputParameter.get(TABLE));
                         metricInputParameter.put(COLUMN_NAME, metricInputParameter.get(COLUMN));
-                        if (connectorParameter.getParameters().get(SCHEMA) != null) {
-                            metricInputParameter.put(SCHEMA, (String)connectorParameter.getParameters().get(SCHEMA));
-                        }
 
                         metricInputParameter.put(TABLE_ALIAS, Md5Utils.getMd5(metricInputParameter.get(DATABASE) + "_" + metricInputParameter.get(TABLE), false).substring(0,8) + "_1");
 

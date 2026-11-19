@@ -71,6 +71,16 @@ public interface Dialect {
         return table;
     }
 
+    /**
+     * Whether a two-part table name {@code a.b} in SQL is interpreted as
+     * {@code schema.table} instead of {@code database.table}.
+     * Dialects such as PostgreSQL do not support cross-database references,
+     * so the qualifier of a two-part name is always a schema.
+     */
+    default boolean isTwoPartNameSchemaQualified() {
+        return false;
+    }
+
     default boolean invalidateItemCanOutput(){
         return true;
     }

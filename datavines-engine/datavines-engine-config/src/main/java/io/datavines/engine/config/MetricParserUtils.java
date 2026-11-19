@@ -143,6 +143,53 @@ public class MetricParserUtils {
         return Md5Utils.getMd5(sb.toString(),true);
     }
 
+    /**
+     * Parse the table name extracted from a custom SQL statement.
+     *
+     * <p>Supported forms:
+     * <ul>
+     *     <li>{@code table}: only the table name is returned;</li>
+     *     <li>{@code schema.table}: when the dialect always interprets a two-part
+     *     name as schema.table (e.g. PostgreSQL, which does not support
+     *     cross-database references), or the prefix matches the configured schema,
+     *     the prefix is treated as a schema and the configured database is kept.
+     *     The comparison is case-insensitive because dialects such as PostgreSQL
+     *     fold unquoted identifiers to lower case;</li>
+     *     <li>{@code database.table}: database and table name are returned;</li>
+     *     <li>{@code database.schema.table}: database, schema and table name are
+     *     returned, the last segment is the real table name.</li>
+     * </ul>
+     *
+     * @param tableFromSql table name extracted from the custom SQL, with quote characters removed
+     * @param connectorSchema schema configured on the datasource, may be null
+     * @param twoPartNameSchemaQualified whether the dialect interprets a two-part name as schema.table
+     * @return the parsed table reference, never null
+     */
+    public static CustomSqlTable parseCustomSqlTable(String tableFromSql,
+                                                     String connectorSchema,
+                                                     boolean twoPartNameSchemaQualified) {
+        String[] tableArray = tableFromSql.split("\\.");
+        if (tableArray.length == 1) {
+            return new CustomSqlTable(null, null, tableArray[0]);
+        }
+
+        if (tableArray.length == 2) {
+            boolean prefixMatchesConfiguredSchema =
+                    connectorSchema != null && connectorSchema.equalsIgnoreCase(tableArray[0]);
+            if (twoPartNameSchemaQualified || prefixMatchesConfiguredSchema) {
+                // schema.table: keep the database configured on the datasource,
+                // prefer the configured schema spelling when it refers to the same schema
+                String schema = prefixMatchesConfiguredSchema ? connectorSchema : tableArray[0];
+                return new CustomSqlTable(null, schema, tableArray[1]);
+            }
+            return new CustomSqlTable(tableArray[0], null, tableArray[1]);
+        }
+
+        // database.schema.table: the last segment is the real table name,
+        // the segment before it is the schema explicitly specified in the SQL
+        return new CustomSqlTable(tableArray[0], tableArray[tableArray.length - 2], tableArray[tableArray.length - 1]);
+    }
+
     public static String getOnClause(List<MappingColumn> mappingColumnList, Map<String,String> inputParameterValueResult, boolean needQuote) {
         //get on clause
         String[] columnList = new String[mappingColumnList.size()];

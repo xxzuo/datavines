@@ -37,6 +37,17 @@ public class PostgreSqlDataSourceInfo extends BaseJdbcDataSourceInfo {
     }
 
     @Override
+    public String getJdbcUrl() {
+        return PostgreSqlUrlUtils.appendCurrentSchema(super.getJdbcUrl(), getSchema());
+    }
+
+    @Override
+    public String paramToString() {
+        // the schema affects the JDBC url (currentSchema), so it must be part of the pool key
+        return super.paramToString() + "&" + StringUtils.defaultString(getSchema());
+    }
+
+    @Override
     public String getDriverClass() {
         return "org.postgresql.Driver";
     }

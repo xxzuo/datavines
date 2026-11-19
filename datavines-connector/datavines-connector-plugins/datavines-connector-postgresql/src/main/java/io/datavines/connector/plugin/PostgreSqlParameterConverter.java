@@ -25,6 +25,16 @@ import static io.datavines.common.ConfigConstants.*;
 public class PostgreSqlParameterConverter extends JdbcParameterConverter {
 
     @Override
+    public Map<String, Object> converter(Map<String, Object> parameter) {
+        Map<String, Object> config = super.converter(parameter);
+        Object url = config.get(URL);
+        if (url != null) {
+            config.put(URL, PostgreSqlUrlUtils.appendCurrentSchema((String) url, (String) parameter.get(SCHEMA)));
+        }
+        return config;
+    }
+
+    @Override
     protected String getUrl(Map<String, Object> parameter) {
         String url = String.format("jdbc:postgresql://%s:%s/%s",
                 parameter.get(HOST),

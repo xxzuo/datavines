@@ -22,4 +22,11 @@ public class PostgreSqlDialect extends JdbcDialect {
     public String getDriver() {
         return "org.postgresql.Driver";
     }
+
+    @Override
+    public boolean isTwoPartNameSchemaQualified() {
+        // PostgreSQL does not support cross-database references,
+        // a two-part name a.b always means schema.table
+        return true;
+    }
 }
