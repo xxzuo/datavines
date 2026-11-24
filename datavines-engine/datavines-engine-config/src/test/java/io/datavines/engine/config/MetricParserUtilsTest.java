@@ -19,6 +19,13 @@ package io.datavines.engine.config;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static io.datavines.common.ConfigConstants.DATABASE;
+import static io.datavines.common.ConfigConstants.SCHEMA;
+import static io.datavines.common.ConfigConstants.TABLE;
+
 public class MetricParserUtilsTest {
 
     @Test
@@ -151,5 +158,63 @@ public class MetricParserUtilsTest {
         Assert.assertEquals("rms_hu", table.getDatabase());
         Assert.assertEquals("inter", table.getSchema());
         Assert.assertEquals("mid_flt_price_ivs", table.getTable());
+    }
+
+    @Test
+    public void testFillTableParametersWithSqlSchema() {
+        Map<String, String> parameter = new HashMap<>();
+        parameter.put(DATABASE, "rms_hu");
+
+        MetricParserUtils.fillTableParameters(new CustomSqlTable(null, "other_schema", "events"), "public", parameter);
+
+        Assert.assertEquals("events", parameter.get(TABLE));
+        Assert.assertEquals("other_schema", parameter.get(SCHEMA));
+        Assert.assertEquals("rms_hu", parameter.get(DATABASE));
+    }
+
+    @Test
+    public void testFillTableParametersFallsBackToConfiguredSchema() {
+        Map<String, String> parameter = new HashMap<>();
+
+        MetricParserUtils.fillTableParameters(new CustomSqlTable(null, null, "events"), "public", parameter);
+
+        Assert.assertEquals("events", parameter.get(TABLE));
+        Assert.assertEquals("public", parameter.get(SCHEMA));
+    }
+
+    @Test
+    public void testFillTableParametersClearsLeftoverSchema() {
+        // multi-table parsing without a configured schema: the unqualified second
+        // table must not inherit the first table's schema
+        Map<String, String> parameter = new HashMap<>();
+
+        MetricParserUtils.fillTableParameters(new CustomSqlTable(null, "other_schema", "a"), null, parameter);
+        Assert.assertEquals("other_schema", parameter.get(SCHEMA));
+
+        MetricParserUtils.fillTableParameters(new CustomSqlTable(null, null, "b"), null, parameter);
+        Assert.assertEquals("b", parameter.get(TABLE));
+        Assert.assertNull(parameter.get(SCHEMA));
+    }
+
+    @Test
+    public void testResetConnectionSchemaToConfiguredOne() {
+        // the SQL-derived schema merged from metric parameters must not become
+        // the connection's default schema
+        Map<String, Object> connectorParameterMap = new HashMap<>();
+        connectorParameterMap.put(SCHEMA, "other_schema");
+
+        MetricParserUtils.resetConnectionSchema(connectorParameterMap, "public");
+
+        Assert.assertEquals("public", connectorParameterMap.get(SCHEMA));
+    }
+
+    @Test
+    public void testResetConnectionSchemaRemovesSchemaWhenNotConfigured() {
+        Map<String, Object> connectorParameterMap = new HashMap<>();
+        connectorParameterMap.put(SCHEMA, "other_schema");
+
+        MetricParserUtils.resetConnectionSchema(connectorParameterMap, null);
+
+        Assert.assertNull(connectorParameterMap.get(SCHEMA));
     }
 }

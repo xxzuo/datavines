@@ -190,6 +190,43 @@ public class MetricParserUtils {
         return new CustomSqlTable(tableArray[0], tableArray[tableArray.length - 2], tableArray[tableArray.length - 1]);
     }
 
+    /**
+     * Fill the TABLE / DATABASE / SCHEMA metric input parameters from the parsed table.
+     * The schema falls back to the datasource-configured one when the SQL does not
+     * specify it, and is cleared when neither is present, so that each table is
+     * resolved independently without leaving a previously parsed table's schema behind.
+     */
+    public static void fillTableParameters(CustomSqlTable customSqlTable,
+                                           String connectorSchema,
+                                           Map<String, String> metricInputParameter) {
+        metricInputParameter.put(TABLE, customSqlTable.getTable());
+        if (customSqlTable.getDatabase() != null) {
+            metricInputParameter.put(DATABASE, customSqlTable.getDatabase());
+        }
+        if (customSqlTable.getSchema() != null) {
+            metricInputParameter.put(SCHEMA, customSqlTable.getSchema());
+        } else if (connectorSchema != null) {
+            metricInputParameter.put(SCHEMA, connectorSchema);
+        } else {
+            metricInputParameter.remove(SCHEMA);
+        }
+    }
+
+    /**
+     * Reset the connection parameter map to the datasource-configured schema.
+     * The SQL-derived schema merged from metric parameters only qualifies the parsed
+     * table itself; it must not become the connection's default schema
+     * (PostgreSQL search_path), otherwise unqualified tables in the same SQL
+     * would resolve against the wrong schema.
+     */
+    public static void resetConnectionSchema(Map<String, Object> connectorParameterMap, String configuredSchema) {
+        if (configuredSchema != null) {
+            connectorParameterMap.put(SCHEMA, configuredSchema);
+        } else {
+            connectorParameterMap.remove(SCHEMA);
+        }
+    }
+
     public static String getOnClause(List<MappingColumn> mappingColumnList, Map<String,String> inputParameterValueResult, boolean needQuote) {
         //get on clause
         String[] columnList = new String[mappingColumnList.size()];

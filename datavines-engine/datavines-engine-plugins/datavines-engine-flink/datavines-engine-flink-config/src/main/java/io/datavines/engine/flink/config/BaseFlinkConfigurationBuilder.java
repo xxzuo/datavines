@@ -93,20 +93,13 @@ public abstract class BaseFlinkConfigurationBuilder extends BaseJobConfiguration
                                     (String) connectorParameter.getParameters().get(SCHEMA) : null;
                             CustomSqlTable customSqlTable = MetricParserUtils.parseCustomSqlTable(table, connectorSchema,
                                     connectorFactory.getDialect().isTwoPartNameSchemaQualified());
-                            metricInputParameter.put(TABLE, customSqlTable.getTable());
-                            if (customSqlTable.getDatabase() != null) {
-                                metricInputParameter.put(DATABASE, customSqlTable.getDatabase());
-                            }
-                            if (customSqlTable.getSchema() != null) {
-                                metricInputParameter.put(SCHEMA, customSqlTable.getSchema());
-                            } else if (connectorSchema != null) {
-                                metricInputParameter.put(SCHEMA, connectorSchema);
-                            }
+                            MetricParserUtils.fillTableParameters(customSqlTable, connectorSchema, metricInputParameter);
 
                             SourceConfig sourceConfig = new SourceConfig();
 
                             Map<String, Object> connectorParameterMap = new HashMap<>(connectorParameter.getParameters());
                             connectorParameterMap.putAll(metricInputParameter);
+                            MetricParserUtils.resetConnectionSchema(connectorParameterMap, connectorSchema);
 
                             metricInputParameter.put(DATABASE_NAME, metricInputParameter.get(DATABASE));
                             metricInputParameter.put(TABLE_NAME, metricInputParameter.get(TABLE));
@@ -206,6 +199,7 @@ public abstract class BaseFlinkConfigurationBuilder extends BaseJobConfiguration
 
                     Map<String, Object> connectorParameterMap = new HashMap<>(connectorParameter2.getParameters());
                     connectorParameterMap.putAll(metricInputParameter);
+                    MetricParserUtils.resetConnectionSchema(connectorParameterMap, (String) connectorParameter2.getParameters().get(SCHEMA));
 
                     if (connectorParameter2.getParameters().get(SCHEMA) != null) {
                         metricInputParameter.put(SCHEMA2, (String)connectorParameter2.getParameters().get(SCHEMA));

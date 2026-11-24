@@ -83,18 +83,11 @@ public abstract class BaseLocalConfigurationBuilder extends BaseJobConfiguration
                                 (String) connectorParameter.getParameters().get(SCHEMA) : null;
                         CustomSqlTable customSqlTable = MetricParserUtils.parseCustomSqlTable(tableFromSql, connectorSchema,
                                 connectorFactory.getDialect().isTwoPartNameSchemaQualified());
-                        metricInputParameter.put(TABLE, customSqlTable.getTable());
-                        if (customSqlTable.getDatabase() != null) {
-                            metricInputParameter.put(DATABASE, customSqlTable.getDatabase());
-                        }
-                        if (customSqlTable.getSchema() != null) {
-                            metricInputParameter.put(SCHEMA, customSqlTable.getSchema());
-                        } else if (connectorSchema != null) {
-                            metricInputParameter.put(SCHEMA, connectorSchema);
-                        }
+                        MetricParserUtils.fillTableParameters(customSqlTable, connectorSchema, metricInputParameter);
 
                         Map<String, Object> connectorParameterMap = new HashMap<>(connectorParameter.getParameters());
                         connectorParameterMap.putAll(metricInputParameter);
+                        MetricParserUtils.resetConnectionSchema(connectorParameterMap, connectorSchema);
                         connectorParameterMap = connectorFactory.getConnectorParameterConverter().converter(connectorParameterMap);
 
                         metricInputParameter.put(DATABASE_NAME, metricInputParameter.get(DATABASE));
@@ -199,6 +192,7 @@ public abstract class BaseLocalConfigurationBuilder extends BaseJobConfiguration
                     ConnectorParameter connectorParameter2 = jobExecutionParameter.getConnectorParameter2();
                     Map<String, Object> connectorParameterMap = new HashMap<>(connectorParameter2.getParameters());
                     connectorParameterMap.putAll(metricInputParameter);
+                    MetricParserUtils.resetConnectionSchema(connectorParameterMap, (String) connectorParameter2.getParameters().get(SCHEMA));
                     connectorParameterMap.put(TABLE, metricInputParameter.get(TABLE2));
                     connectorParameterMap.put(DATABASE, metricInputParameter.get(DATABASE2));
                     ConnectorFactory connectorFactory = PluginDiscovery.getMultiKeyPluginDiscovery(ConnectorFactory.class, ConnectorFactory::getPluginNames)
