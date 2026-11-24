@@ -103,7 +103,9 @@ public class JdbcSource implements SparkBatchSource {
         DataFrameReader reader = new DataFrameReader(env.sparkSession());
         String table = config.getString(TABLE);
         String schema = config.getString(SCHEMA);
-        if (!StringUtils.isEmptyOrNullStr(schema)) {
+        // custom sql sources already carry a qualified table name; only qualify
+        // unqualified names with the configured schema
+        if (!StringUtils.isEmptyOrNullStr(schema) && !table.contains(".")) {
             table = schema + "." + table;
         }
         return reader.jdbc(config.getString(URL), table, properties);

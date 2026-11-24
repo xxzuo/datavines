@@ -105,7 +105,10 @@ public abstract class BaseFlinkConfigurationBuilder extends BaseJobConfiguration
                             metricInputParameter.put(TABLE_NAME, metricInputParameter.get(TABLE));
                             metricInputParameter.put(COLUMN_NAME, StringUtils.isEmpty(metricInputParameter.get(COLUMN)) ? "--" : metricInputParameter.get(COLUMN));
 
-                            connectorParameterMap.put(TABLE, metricInputParameter.get(TABLE));
+                            // the source must read the table with its own schema, independent of
+                            // the connection's default schema
+                            connectorParameterMap.put(TABLE, connectorFactory.getDialect().getFullQualifiedTableName(
+                                    metricInputParameter.get(DATABASE), metricInputParameter.get(SCHEMA), metricInputParameter.get(TABLE), false));
                             connectorParameterMap.put(DATABASE, metricInputParameter.get(DATABASE));
                             connectorParameterMap = connectorFactory.getConnectorParameterConverter().converter(connectorParameterMap);
                             connectorParameterMap.put(PASSWORD, ParserUtils.encode((String)connectorParameterMap.get(PASSWORD)));
