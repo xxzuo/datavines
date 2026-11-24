@@ -29,4 +29,12 @@ public class PostgreSqlDialect extends JdbcDialect {
         // a two-part name a.b always means schema.table
         return true;
     }
+
+    @Override
+    public String getFullQualifiedTableName(String database, String schema, String table, boolean needQuote) {
+        // the database is selected by the JDBC URL; prepending it would be misread
+        // as a schema (PostgreSQL two-part names mean schema.table). Without a
+        // schema the bare table name is resolved by the connection's search_path.
+        return super.getFullQualifiedTableName(null, schema, table, needQuote);
+    }
 }

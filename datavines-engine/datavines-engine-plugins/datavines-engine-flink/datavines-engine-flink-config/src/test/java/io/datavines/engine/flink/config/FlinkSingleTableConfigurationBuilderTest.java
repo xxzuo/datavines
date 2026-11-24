@@ -99,7 +99,7 @@ public class FlinkSingleTableConfigurationBuilderTest {
 
         Assert.assertEquals(1, sourceConfigs.size());
         Map<String, Object> config = sourceConfigs.get(0).getConfig();
-        Assert.assertEquals("rms_hu.other_schema.events", config.get(TABLE));
+        Assert.assertEquals("other_schema.events", config.get(TABLE));
         Assert.assertEquals("public", config.get(SCHEMA));
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu?currentSchema=public", config.get(URL));
     }
@@ -112,7 +112,7 @@ public class FlinkSingleTableConfigurationBuilderTest {
         List<SourceConfig> sourceConfigs = builder.getSourceConfigs();
 
         Map<String, Object> config = sourceConfigs.get(0).getConfig();
-        Assert.assertEquals("rms_hu.inter.mid_flt_price_ivs", config.get(TABLE));
+        Assert.assertEquals("inter.mid_flt_price_ivs", config.get(TABLE));
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu?currentSchema=inter", config.get(URL));
     }
 
@@ -127,10 +127,24 @@ public class FlinkSingleTableConfigurationBuilderTest {
         Assert.assertEquals(2, sourceConfigs.size());
         Map<String, Object> first = sourceConfigs.get(0).getConfig();
         Map<String, Object> second = sourceConfigs.get(1).getConfig();
-        Assert.assertEquals("rms_hu.other_schema.a", first.get(TABLE));
+        Assert.assertEquals("other_schema.a", first.get(TABLE));
         Assert.assertNull(first.get(SCHEMA));
-        Assert.assertEquals("rms_hu.b", second.get(TABLE));
+        Assert.assertEquals("b", second.get(TABLE));
         Assert.assertNull(second.get(SCHEMA));
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu", second.get(URL));
+    }
+
+    @Test
+    public void testUnqualifiedTableWithoutConfiguredSchemaKeepsBareName() throws Exception {
+        FlinkSingleTableConfigurationBuilder builder = buildBuilder(null,
+                "select max(flt_date) as actual_value from mid_flt_price_ivs");
+
+        List<SourceConfig> sourceConfigs = builder.getSourceConfigs();
+
+        Map<String, Object> config = sourceConfigs.get(0).getConfig();
+        // database.table would be misread as schema.table by PostgreSQL
+        Assert.assertEquals("mid_flt_price_ivs", config.get(TABLE));
+        Assert.assertNull(config.get(SCHEMA));
+        Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu", config.get(URL));
     }
 }

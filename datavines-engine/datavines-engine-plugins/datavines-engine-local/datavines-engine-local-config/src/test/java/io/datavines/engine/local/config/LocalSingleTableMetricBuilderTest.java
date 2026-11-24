@@ -112,7 +112,7 @@ public class LocalSingleTableMetricBuilderTest {
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu?currentSchema=public", config.get(URL));
         Assert.assertEquals("public", config.get(SCHEMA));
         // the parsed table itself keeps its own schema
-        Assert.assertEquals("rms_hu.other_schema.events", config.get(TABLE));
+        Assert.assertEquals("other_schema.events", config.get(TABLE));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class LocalSingleTableMetricBuilderTest {
 
         Map<String, Object> config = sourceConfigs.get(0).getConfig();
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu?currentSchema=inter", config.get(URL));
-        Assert.assertEquals("rms_hu.inter.mid_flt_price_ivs", config.get(TABLE));
+        Assert.assertEquals("inter.mid_flt_price_ivs", config.get(TABLE));
     }
 
     @Test
@@ -137,7 +137,22 @@ public class LocalSingleTableMetricBuilderTest {
         Map<String, Object> config = sourceConfigs.get(0).getConfig();
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu", config.get(URL));
         Assert.assertNull(config.get(SCHEMA));
-        Assert.assertEquals("rms_hu.public.events", config.get(TABLE));
+        Assert.assertEquals("public.events", config.get(TABLE));
+    }
+
+    @Test
+    public void testUnqualifiedTableWithoutConfiguredSchemaKeepsBareName() throws Exception {
+        LocalSingleTableMetricBuilder builder = buildBuilder(null,
+                "select max(flt_date) as actual_value from mid_flt_price_ivs", null);
+
+        List<SourceConfig> sourceConfigs = builder.getSourceConfigs();
+
+        Map<String, Object> config = sourceConfigs.get(0).getConfig();
+        // database.table would be misread as schema.table by PostgreSQL;
+        // the bare name must be resolved by the connection's search_path
+        Assert.assertEquals("mid_flt_price_ivs", config.get(TABLE));
+        Assert.assertNull(config.get(SCHEMA));
+        Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu", config.get(URL));
     }
 
     @Test
@@ -153,6 +168,6 @@ public class LocalSingleTableMetricBuilderTest {
         Map<String, Object> targetConfig = sourceConfigs.get(1).getConfig();
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu?currentSchema=inter", sourceConfig.get(URL));
         Assert.assertEquals("jdbc:postgresql://127.0.0.1:5432/rms_hu?currentSchema=public", targetConfig.get(URL));
-        Assert.assertEquals("rms_hu.public.target_table", targetConfig.get(TABLE));
+        Assert.assertEquals("public.target_table", targetConfig.get(TABLE));
     }
 }
